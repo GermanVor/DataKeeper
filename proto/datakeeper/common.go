@@ -3,7 +3,7 @@ package proto
 import (
 	"errors"
 
-	"github.com/GermanVor/data-keeper/internal/storage"
+	"github.com/GermanVor/data-keeper/cmd/storageServer/storage"
 )
 
 func (d *DataType) Format() storage.DataType {
@@ -21,7 +21,7 @@ func (d *DataType) Format() storage.DataType {
 	}
 }
 
-func (r *NewRequest) Format() (*storage.NewData, error) {
+func (r *NewRequest) Format(userId string) (*storage.NewData, error) {
 	dataType := r.DataType.Format()
 
 	if dataType == storage.Unknown {
@@ -29,16 +29,16 @@ func (r *NewRequest) Format() (*storage.NewData, error) {
 	}
 
 	return &storage.NewData{
-		UserId:   r.UserId,
+		UserId:   userId,
 		DataType: dataType,
 		Data:     r.Data,
 		Meta:     r.Meta,
 	}, nil
 }
 
-func (r *SetRequest) Format() *storage.SetData {
+func (r *SetRequest) Format(userId string) *storage.SetData {
 	return &storage.SetData{
-		UserId: r.UserId,
+		UserId: userId,
 		Id:     r.Id,
 		Data:   r.Data,
 		Meta:   r.Meta,

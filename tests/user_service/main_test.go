@@ -7,8 +7,8 @@ import (
 	"net"
 	"testing"
 
-	"github.com/GermanVor/data-keeper/internal/user"
-	storage "github.com/GermanVor/data-keeper/internal/userStorage"
+	userRPC "github.com/GermanVor/data-keeper/cmd/userStorageServer/rpc"
+	"github.com/GermanVor/data-keeper/cmd/userStorageServer/storage"
 	pb "github.com/GermanVor/data-keeper/proto/user"
 	"github.com/bmizerany/assert"
 	"github.com/golang-jwt/jwt"
@@ -67,7 +67,7 @@ func init() {
 	lis = bufconn.Listen(bufSize)
 	s := grpc.NewServer()
 
-	pb.RegisterUserServer(s, user.Init(stor))
+	pb.RegisterUserServer(s, userRPC.Init(stor))
 
 	go func() {
 		if err := s.Serve(lis); err != nil {

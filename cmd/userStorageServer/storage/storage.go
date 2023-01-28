@@ -1,4 +1,4 @@
-package userstorage
+package storage
 
 import (
 	"context"

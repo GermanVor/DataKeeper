@@ -7,8 +7,8 @@ import (
 	"net"
 	"testing"
 
-	"github.com/GermanVor/data-keeper/internal/datakeeper"
-	storage "github.com/GermanVor/data-keeper/internal/storage"
+	"github.com/GermanVor/data-keeper/cmd/storageServer/rpc"
+	"github.com/GermanVor/data-keeper/cmd/storageServer/storage"
 	pb "github.com/GermanVor/data-keeper/proto/datakeeper"
 	"github.com/bmizerany/assert"
 	"github.com/stretchr/testify/require"
@@ -18,7 +18,6 @@ import (
 )
 
 var (
-	USER_ID   = "USER_ID_QWE"
 	ID        = "ID"
 	DATA_TYPE = pb.DataType_TEXT
 	DATA      = []byte("qwerty")
@@ -29,15 +28,11 @@ const bufSize = 1024 * 1024
 type StorageMock struct{}
 
 func (s *StorageMock) New(ctx context.Context, newData *storage.NewData) (string, error) {
-	if newData.UserId == USER_ID {
-		return ID, nil
-	}
-
-	return "", errors.New("")
+	return ID, nil
 }
 
 func (s *StorageMock) Get(ctx context.Context, getData *storage.GetData) (*storage.Data, error) {
-	if getData.UserId == USER_ID && getData.Id == ID {
+	if getData.Id == ID {
 		return &storage.Data{
 			Id:       ID,
 			DataType: DATA_TYPE.Format(),
@@ -50,7 +45,7 @@ func (s *StorageMock) Get(ctx context.Context, getData *storage.GetData) (*stora
 }
 
 func (s *StorageMock) Set(ctx context.Context, setData *storage.SetData) (*storage.Data, error) {
-	if setData.UserId == USER_ID && setData.Id == ID {
+	if setData.Id == ID {
 		return &storage.Data{
 			Id:       ID,
 			DataType: DATA_TYPE.Format(),
@@ -63,7 +58,7 @@ func (s *StorageMock) Set(ctx context.Context, setData *storage.SetData) (*stora
 }
 
 func (s *StorageMock) Delete(ctx context.Context, deleteData *storage.DeleteData) (bool, error) {
-	if deleteData.UserId == USER_ID && deleteData.Id == ID {
+	if deleteData.Id == ID {
 		return true, nil
 	}
 
@@ -80,7 +75,7 @@ func init() {
 	lis = bufconn.Listen(bufSize)
 	s := grpc.NewServer()
 
-	pb.RegisterDataKeeperServer(s, datakeeper.Init(stor))
+	pb.RegisterDataKeeperServer(s, datakeeperrpc.Init(stor))
 
 	go func() {
 		if err := s.Serve(lis); err != nil {
@@ -96,7 +91,7 @@ func bufDialer(context.Context, string) (net.Conn, error) {
 func TestBase(t *testing.T) {
 	ctx := context.Background()
 
-	conn, err := grpc.DialContext(ctx, "bufnet", grpc.WithContextDialer(bufDialer), grpc.WithTransportCredentials(insecure.NewCredentials()))
+	conn, err := grpc.DialContext(context.Background(), "bufnet", grpc.WithContextDialer(bufDialer), grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		t.Fatalf("Failed to dial bufnet: %v", err)
 	}
@@ -105,7 +100,6 @@ func TestBase(t *testing.T) {
 
 	t.Run("New", func(t *testing.T) {
 		resp, err := client.New(ctx, &pb.NewRequest{
-			UserId:   USER_ID,
 			DataType: DATA_TYPE,
 			Data:     DATA,
 			Meta:     make(map[string]string),
@@ -117,8 +111,7 @@ func TestBase(t *testing.T) {
 
 	t.Run("Get", func(t *testing.T) {
 		resp, err := client.Get(ctx, &pb.GetRequest{
-			UserId: USER_ID,
-			Id:     ID,
+			Id: ID,
 		})
 
 		require.NoError(t, err)
@@ -132,10 +125,9 @@ func TestBase(t *testing.T) {
 		newMeta := map[string]string{"qwe": "rty"}
 
 		resp, err := client.Set(ctx, &pb.SetRequest{
-			UserId: USER_ID,
-			Id:     ID,
-			Data:   newData,
-			Meta:   newMeta,
+			Id:   ID,
+			Data: newData,
+			Meta: newMeta,
 		})
 
 		require.NoError(t, err)

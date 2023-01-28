@@ -23,10 +23,9 @@ service DataKeeper {
 }
 
 message NewRequest {
-    string userId = 1;
-    DataType dataType = 2;
-    bytes data = 3;
-    map<string, string> meta = 4;
+    DataType dataType = 1;
+    bytes data = 2;
+    map<string, string> meta = 3;
 }
 
 message NewResponse {
@@ -35,8 +34,7 @@ message NewResponse {
 
 
 message GetRequest {
-    string userId = 1;
-    string id = 2;
+    string id = 1;
 }
 
 message GetResponse {
@@ -48,10 +46,9 @@ message GetResponse {
 
 
 message SetRequest {
-    string userId = 1;
-    string id = 2;
-    bytes data = 3;
-    map<string, string> meta = 4;
+    string id = 1;
+    bytes data = 2;
+    map<string, string> meta = 3;
 }
 
 message SetResponse {
@@ -63,8 +60,7 @@ message SetResponse {
 
 
 message DeleteRequest {
-    string userId = 1;
-    string id = 2;
+    string id = 1;
 }
 
 message DeleteResponse {

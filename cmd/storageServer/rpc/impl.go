@@ -1,10 +1,10 @@
-package datakeeper
+package datakeeperrpc
 
 import (
 	"context"
 	"errors"
 
-	storage "github.com/GermanVor/data-keeper/internal/storage"
+	"github.com/GermanVor/data-keeper/cmd/storageServer/storage"
 	pb "github.com/GermanVor/data-keeper/proto/datakeeper"
 )
 
@@ -29,7 +29,9 @@ type DatakeeperServiceImpl struct {
 }
 
 func (s *DatakeeperServiceImpl) New(ctx context.Context, in *pb.NewRequest) (*pb.NewResponse, error) {
-	newData, err := in.Format()
+	userId, _ := ctx.Value("userId").(string)
+
+	newData, err := in.Format(userId)
 	if err != nil {
 		return nil, err
 	}
@@ -45,7 +47,9 @@ func (s *DatakeeperServiceImpl) New(ctx context.Context, in *pb.NewRequest) (*pb
 }
 
 func (s *DatakeeperServiceImpl) Get(ctx context.Context, in *pb.GetRequest) (*pb.GetResponse, error) {
-	data, err := s.stor.Get(ctx, &storage.GetData{UserId: in.UserId, Id: in.Id})
+	userId, _ := ctx.Value("userId").(string)
+
+	data, err := s.stor.Get(ctx, &storage.GetData{UserId: userId, Id: in.Id})
 	if err != nil {
 		return nil, err
 	}
@@ -59,7 +63,9 @@ func (s *DatakeeperServiceImpl) Get(ctx context.Context, in *pb.GetRequest) (*pb
 }
 
 func (s *DatakeeperServiceImpl) Set(ctx context.Context, in *pb.SetRequest) (*pb.SetResponse, error) {
-	data, err := s.stor.Set(ctx, in.Format())
+	userId, _ := ctx.Value("userId").(string)
+
+	data, err := s.stor.Set(ctx, in.Format(userId))
 	if err != nil {
 		return nil, err
 	}
@@ -73,8 +79,10 @@ func (s *DatakeeperServiceImpl) Set(ctx context.Context, in *pb.SetRequest) (*pb
 }
 
 func (s *DatakeeperServiceImpl) Delete(ctx context.Context, in *pb.DeleteRequest) (*pb.DeleteResponse, error) {
+	userId, _ := ctx.Value("userId").(string)
+
 	ok, err := s.stor.Delete(ctx, &storage.DeleteData{
-		UserId: in.UserId,
+		UserId: userId,
 		Id:     in.Id,
 	})
 	if err != nil {

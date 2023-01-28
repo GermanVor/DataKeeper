@@ -47,8 +47,6 @@ type DeleteData struct {
 	Id     string
 }
 
-// userId | Id | type | data
-
 type Interface interface {
 	New(ctx context.Context, newData *NewData) (string, error)
 	Get(ctx context.Context, getData *GetData) (*Data, error)

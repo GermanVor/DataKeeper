@@ -1,15 +1,15 @@
-package user
+package userrpc
 
 import (
 	"context"
 	"strings"
 
-	storage "github.com/GermanVor/data-keeper/internal/userStorage"
+	"github.com/GermanVor/data-keeper/cmd/userStorageServer/storage"
 	pb "github.com/GermanVor/data-keeper/proto/user"
 	"github.com/golang-jwt/jwt/v4"
 )
 
-type UserServiceImpl struct {
+type UserRPCImpl struct {
 	pb.UnimplementedUserServer
 	stor storage.Interface
 }
@@ -29,7 +29,7 @@ func buildUserToke(userId, secret string) (string, error) {
 	return tokenString, nil
 }
 
-func (s *UserServiceImpl) LogIn(ctx context.Context, in *pb.LogInRequest) (*pb.LogInResponse, error) {
+func (s *UserRPCImpl) LogIn(ctx context.Context, in *pb.LogInRequest) (*pb.LogInResponse, error) {
 	userId, err := s.stor.LogIn(ctx, &storage.UserData{
 		Login:    in.Login,
 		Password: in.Password,
@@ -52,7 +52,7 @@ func (s *UserServiceImpl) LogIn(ctx context.Context, in *pb.LogInRequest) (*pb.L
 	return resp, nil
 }
 
-func (s *UserServiceImpl) CheckAccess(ctx context.Context, in *pb.CheckAccessRequest) (*pb.CheckAccessResponse, error) {
+func (s *UserRPCImpl) CheckAccess(ctx context.Context, in *pb.CheckAccessRequest) (*pb.CheckAccessResponse, error) {
 	claim := jwt.MapClaims{}
 	token, parts, err := jwt.NewParser().ParseUnverified(in.Token, claim)
 
@@ -72,7 +72,6 @@ func (s *UserServiceImpl) CheckAccess(ctx context.Context, in *pb.CheckAccessReq
 	}
 
 	if err = token.Method.Verify(strings.Join(parts[0:2], "."), parts[2], []byte(secret)); err != nil {
-		// не валидный
 		return nil, err
 	}
 
@@ -81,7 +80,7 @@ func (s *UserServiceImpl) CheckAccess(ctx context.Context, in *pb.CheckAccessReq
 	}, nil
 }
 
-func (s *UserServiceImpl) SignIn(ctx context.Context, in *pb.SignInRequest) (*pb.SignInResponse, error) {
+func (s *UserRPCImpl) SignIn(ctx context.Context, in *pb.SignInRequest) (*pb.SignInResponse, error) {
 	signResp, err := s.stor.SignIn(ctx, in.Login, in.Password)
 	if err != nil {
 		return nil, err
@@ -99,8 +98,8 @@ func (s *UserServiceImpl) SignIn(ctx context.Context, in *pb.SignInRequest) (*pb
 	return resp, nil
 }
 
-func Init(stor storage.Interface) *UserServiceImpl {
-	return &UserServiceImpl{
+func Init(stor storage.Interface) *UserRPCImpl {
+	return &UserRPCImpl{
 		stor: stor,
 	}
 }
