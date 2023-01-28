@@ -1,0 +1,71 @@
+syntax = "proto3";
+
+package data_keeper_service;
+
+option go_package = "data_keeper_service/proto";
+
+// TO GENERATE data_keeper_service.go
+// protoc --go_out=. --go_opt=paths=source_relative --go-grpc_out=. --go-grpc_opt=paths=source_relative proto/datakeeper/data_keeper_service.proto
+
+enum DataType {
+    UNSPECIFIED = 0;
+    LOGG_PASS = 1;
+    TEXT = 2;
+    BANK_CARD = 3;
+    OTHER = 4;
+}
+
+service DataKeeper {
+    rpc New(NewRequest) returns (NewResponse);
+    rpc Get(GetRequest) returns (GetResponse);
+    rpc Set(SetRequest) returns (SetResponse);
+    rpc Delete(DeleteRequest) returns (DeleteResponse);
+}
+
+message NewRequest {
+    string userId = 1;
+    DataType dataType = 2;
+    bytes data = 3;
+    map<string, string> meta = 4;
+}
+
+message NewResponse {
+    string id = 1;
+}
+
+
+message GetRequest {
+    string userId = 1;
+    string id = 2;
+}
+
+message GetResponse {
+    string id = 1;
+    DataType dataType = 2;
+    bytes data = 3;
+    map<string, string> meta = 4;
+}
+
+
+message SetRequest {
+    string userId = 1;
+    string id = 2;
+    bytes data = 3;
+    map<string, string> meta = 4;
+}
+
+message SetResponse {
+    string id = 1;
+    DataType dataType = 2;
+    bytes data = 3;
+    map<string, string> meta = 4;
+}
+
+
+message DeleteRequest {
+    string userId = 1;
+    string id = 2;
+}
+
+message DeleteResponse {
+}

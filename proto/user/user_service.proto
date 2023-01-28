@@ -1,0 +1,56 @@
+syntax = "proto3";
+
+package user_service;
+
+option go_package = "user_service/proto";
+
+// TO GENERATE user_service.go
+// protoc --go_out=. --go_opt=paths=source_relative --go-grpc_out=. --go-grpc_opt=paths=source_relative proto/user/user_service.proto
+
+service User {
+    rpc LogIn(LogInRequest) returns (LogInResponse);
+    rpc SignIn(SignInRequest) returns (SignInResponse);
+
+    rpc CheckAccess(CheckAccessRequest) returns (CheckAccessResponse);
+}
+
+message LogInRequest {
+    string login = 1;
+    string password = 2;
+    string email = 3;
+    string secret = 4;
+}
+
+message LogInResponse {
+    string token = 1;
+}
+
+
+message SignInRequest {
+    string login = 1;
+    string password = 2;
+}
+
+message SignInResponse {
+    string token = 1;
+}
+
+
+message CreateAccountRequest {
+    string token = 1;
+    string accountName = 2;
+    string password = 3;
+}
+
+message CreateAccountResponse {
+    string token = 1;
+}
+
+
+message CheckAccessRequest {
+    string token = 1;
+}
+
+message CheckAccessResponse {
+    string userId = 1;
+}
