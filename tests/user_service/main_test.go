@@ -49,7 +49,7 @@ func (s *StorageMock) GetSecret(ctx context.Context, userId string) (string, err
 func (s *StorageMock) SignIn(ctx context.Context, login, password string) (*storage.SignOutput, error) {
 	if login == USER_LOGIN {
 		return &storage.SignOutput{
-			UserId: USER_ID,
+			UserID: USER_ID,
 			Secret: SECRET,
 		}, nil
 	}
@@ -116,7 +116,7 @@ func TestBase(t *testing.T) {
 		})
 
 		require.NoError(t, err)
-		assert.Equal(t, USER_ID, resp.UserId)
+		assert.Equal(t, USER_ID, resp.UserID)
 	})
 }
 

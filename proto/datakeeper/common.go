@@ -1,6 +1,7 @@
 package proto
 
 import (
+	"encoding/json"
 	"errors"
 
 	"github.com/GermanVor/data-keeper/cmd/storageServer/storage"
@@ -28,19 +29,29 @@ func (r *NewRequest) Format(userId string) (*storage.NewData, error) {
 		return nil, errors.New("")
 	}
 
+	b, err := json.Marshal(r.Meta)
+	if err != nil {
+		return nil, errors.New("")
+	}
+
 	return &storage.NewData{
-		UserId:   userId,
+		UserID:   userId,
 		DataType: dataType,
 		Data:     r.Data,
-		Meta:     r.Meta,
+		Meta:     b,
 	}, nil
 }
 
-func (r *SetRequest) Format(userId string) *storage.SetData {
+func (r *SetRequest) Format(userId string) (*storage.SetData, error) {
+	b, err := json.Marshal(r.Meta)
+	if err != nil {
+		return nil, err
+	}
+
 	return &storage.SetData{
-		UserId: userId,
+		UserID: userId,
 		Id:     r.Id,
 		Data:   r.Data,
-		Meta:   r.Meta,
-	}
+		Meta:   b,
+	}, nil
 }

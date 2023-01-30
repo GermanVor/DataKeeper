@@ -24,6 +24,7 @@ const _ = grpc.SupportPackageIsVersion7
 type DataKeeperClient interface {
 	New(ctx context.Context, in *NewRequest, opts ...grpc.CallOption) (*NewResponse, error)
 	Get(ctx context.Context, in *GetRequest, opts ...grpc.CallOption) (*GetResponse, error)
+	GetBatch(ctx context.Context, in *GetBatchRequest, opts ...grpc.CallOption) (*GetBatchResponse, error)
 	Set(ctx context.Context, in *SetRequest, opts ...grpc.CallOption) (*SetResponse, error)
 	Delete(ctx context.Context, in *DeleteRequest, opts ...grpc.CallOption) (*DeleteResponse, error)
 }
@@ -54,6 +55,15 @@ func (c *dataKeeperClient) Get(ctx context.Context, in *GetRequest, opts ...grpc
 	return out, nil
 }
 
+func (c *dataKeeperClient) GetBatch(ctx context.Context, in *GetBatchRequest, opts ...grpc.CallOption) (*GetBatchResponse, error) {
+	out := new(GetBatchResponse)
+	err := c.cc.Invoke(ctx, "/data_keeper_service.DataKeeper/GetBatch", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *dataKeeperClient) Set(ctx context.Context, in *SetRequest, opts ...grpc.CallOption) (*SetResponse, error) {
 	out := new(SetResponse)
 	err := c.cc.Invoke(ctx, "/data_keeper_service.DataKeeper/Set", in, out, opts...)
@@ -78,6 +88,7 @@ func (c *dataKeeperClient) Delete(ctx context.Context, in *DeleteRequest, opts .
 type DataKeeperServer interface {
 	New(context.Context, *NewRequest) (*NewResponse, error)
 	Get(context.Context, *GetRequest) (*GetResponse, error)
+	GetBatch(context.Context, *GetBatchRequest) (*GetBatchResponse, error)
 	Set(context.Context, *SetRequest) (*SetResponse, error)
 	Delete(context.Context, *DeleteRequest) (*DeleteResponse, error)
 	mustEmbedUnimplementedDataKeeperServer()
@@ -92,6 +103,9 @@ func (UnimplementedDataKeeperServer) New(context.Context, *NewRequest) (*NewResp
 }
 func (UnimplementedDataKeeperServer) Get(context.Context, *GetRequest) (*GetResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Get not implemented")
+}
+func (UnimplementedDataKeeperServer) GetBatch(context.Context, *GetBatchRequest) (*GetBatchResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetBatch not implemented")
 }
 func (UnimplementedDataKeeperServer) Set(context.Context, *SetRequest) (*SetResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Set not implemented")
@@ -148,6 +162,24 @@ func _DataKeeper_Get_Handler(srv interface{}, ctx context.Context, dec func(inte
 	return interceptor(ctx, in, info, handler)
 }
 
+func _DataKeeper_GetBatch_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetBatchRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(DataKeeperServer).GetBatch(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/data_keeper_service.DataKeeper/GetBatch",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(DataKeeperServer).GetBatch(ctx, req.(*GetBatchRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _DataKeeper_Set_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(SetRequest)
 	if err := dec(in); err != nil {
@@ -198,6 +230,10 @@ var DataKeeper_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Get",
 			Handler:    _DataKeeper_Get_Handler,
+		},
+		{
+			MethodName: "GetBatch",
+			Handler:    _DataKeeper_GetBatch_Handler,
 		},
 		{
 			MethodName: "Set",

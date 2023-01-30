@@ -18,6 +18,7 @@ enum DataType {
 service DataKeeper {
     rpc New(NewRequest) returns (NewResponse);
     rpc Get(GetRequest) returns (GetResponse);
+    rpc GetBatch(GetBatchRequest) returns (GetBatchResponse);
     rpc Set(SetRequest) returns (SetResponse);
     rpc Delete(DeleteRequest) returns (DeleteResponse);
 }
@@ -42,6 +43,23 @@ message GetResponse {
     DataType dataType = 2;
     bytes data = 3;
     map<string, string> meta = 4;
+}
+
+
+message GetBatchRequest {
+    int32 offset = 1;
+    int32 limit = 2;
+}
+
+message GetBatchResponse {
+    message Data {
+        string id = 1;
+        DataType dataType = 2;
+        bytes data = 3;
+        map<string, string> meta = 4;
+    }
+
+    repeated Data dataArray = 1;
 }
 
 

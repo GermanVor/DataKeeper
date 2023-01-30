@@ -17,8 +17,6 @@ service User {
 message LogInRequest {
     string login = 1;
     string password = 2;
-    string email = 3;
-    string secret = 4;
 }
 
 message LogInResponse {
@@ -29,6 +27,8 @@ message LogInResponse {
 message SignInRequest {
     string login = 1;
     string password = 2;
+    string email = 3;
+    string secret = 4;
 }
 
 message SignInResponse {
