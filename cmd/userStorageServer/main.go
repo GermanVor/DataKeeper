@@ -1,31 +1,27 @@
 package main
 
 import (
-	"context"
-	"errors"
+	"flag"
 
 	"github.com/GermanVor/data-keeper/cmd/userStorageServer/service"
 	"github.com/GermanVor/data-keeper/cmd/userStorageServer/storage"
 )
 
-type StorageMock struct{}
+var (
+	addr        = ":1234"
+	dataBaseDSN = "postgres://zzman:@localhost:5432/postgres"
+)
 
-func (s *StorageMock) LogIn(ctx context.Context, userData *storage.UserData) (string, error) {
-	return "", errors.New("")
+func init() {
+	flag.StringVar(&addr, "a", addr, "address of the service")
+	flag.StringVar(&dataBaseDSN, "d", dataBaseDSN, "")
 }
-
-func (s *StorageMock) GetSecret(ctx context.Context, userId string) (string, error) {
-	return "", errors.New("")
-}
-
-func (s *StorageMock) SignIn(ctx context.Context, login, password string) (*storage.SignOutput, error) {
-	return nil, errors.New("")
-}
-
-var _ storage.Interface = (*StorageMock)(nil)
 
 func main() {
-	s := service.Init(":1234", &StorageMock{})
+	flag.Parse()
+
+	stor := storage.Init(dataBaseDSN)
+	s := service.Init(addr, stor)
 
 	s.Start()
 }

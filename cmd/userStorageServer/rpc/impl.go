@@ -30,17 +30,12 @@ func buildUserToke(userId, secret string) (string, error) {
 }
 
 func (s *UserRPCImpl) LogIn(ctx context.Context, in *pb.LogInRequest) (*pb.LogInResponse, error) {
-	userId, err := s.stor.LogIn(ctx, &storage.UserData{
-		Login:    in.Login,
-		Password: in.Password,
-		Email:    in.Email,
-		Secret:   in.Secret,
-	})
+	userOutput, err := s.stor.LogIn(ctx, in.Login, in.Password)
 	if err != nil {
 		return nil, err
 	}
 
-	tokenStr, err := buildUserToke(userId, in.Secret)
+	tokenStr, err := buildUserToke(userOutput.UserID, userOutput.Secret)
 	if err != nil {
 		return nil, err
 	}
@@ -76,17 +71,22 @@ func (s *UserRPCImpl) CheckAccess(ctx context.Context, in *pb.CheckAccessRequest
 	}
 
 	return &pb.CheckAccessResponse{
-		UserId: userId,
+		UserID: userId,
 	}, nil
 }
 
 func (s *UserRPCImpl) SignIn(ctx context.Context, in *pb.SignInRequest) (*pb.SignInResponse, error) {
-	signResp, err := s.stor.SignIn(ctx, in.Login, in.Password)
+	userOutput, err := s.stor.SignIn(ctx, &storage.UserData{
+		Login:    in.Login,
+		Password: in.Password,
+		Email:    in.Email,
+		Secret:   in.Secret,
+	})
 	if err != nil {
 		return nil, err
 	}
 
-	tokenStr, err := buildUserToke(signResp.UserId, signResp.Secret)
+	tokenStr, err := buildUserToke(userOutput.UserID, userOutput.Secret)
 	if err != nil {
 		return nil, err
 	}
