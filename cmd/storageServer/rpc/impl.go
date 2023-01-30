@@ -2,6 +2,7 @@ package datakeeperrpc
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 
 	"github.com/GermanVor/data-keeper/cmd/storageServer/storage"
@@ -49,40 +50,81 @@ func (s *DatakeeperServiceImpl) New(ctx context.Context, in *pb.NewRequest) (*pb
 func (s *DatakeeperServiceImpl) Get(ctx context.Context, in *pb.GetRequest) (*pb.GetResponse, error) {
 	userId, _ := ctx.Value("userId").(string)
 
-	data, err := s.stor.Get(ctx, &storage.GetData{UserId: userId, Id: in.Id})
+	data, err := s.stor.Get(ctx, &storage.GetData{UserID: userId, Id: in.Id})
 	if err != nil {
 		return nil, err
 	}
 
-	return &pb.GetResponse{
+	resp := &pb.GetResponse{
 		Id:       data.Id,
 		DataType: FormatStorageData(data.DataType),
 		Data:     data.Data,
-		Meta:     data.Meta,
-	}, nil
+		Meta:     make(map[string]string),
+	}
+
+	return resp, json.Unmarshal(data.Meta, &resp.Meta)
+}
+
+func (s *DatakeeperServiceImpl) GetBatch(ctx context.Context, in *pb.GetBatchRequest) (*pb.GetBatchResponse, error) {
+	userId, _ := ctx.Value("userId").(string)
+
+	batch, err := s.stor.GetBatch(
+		ctx,
+		&storage.GetBatch{UserID: userId, Offset: in.Offset, Limit: in.Limit},
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	resp := &pb.GetBatchResponse{
+		DataArray: make([]*pb.GetBatchResponse_Data, len(batch)),
+	}
+
+	for i, row := range batch {
+		resp.DataArray[i] = &pb.GetBatchResponse_Data{
+			Id:       row.Id,
+			DataType: pb.DataType(row.DataType),
+			Data:     row.Data,
+			Meta:     make(map[string]string),
+		}
+
+		err := json.Unmarshal(row.Meta, &resp.DataArray[i].Meta)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	return resp, nil
 }
 
 func (s *DatakeeperServiceImpl) Set(ctx context.Context, in *pb.SetRequest) (*pb.SetResponse, error) {
 	userId, _ := ctx.Value("userId").(string)
 
-	data, err := s.stor.Set(ctx, in.Format(userId))
+	req, err := in.Format(userId)
 	if err != nil {
 		return nil, err
 	}
 
-	return &pb.SetResponse{
+	data, err := s.stor.Set(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+
+	resp := &pb.SetResponse{
 		Id:       data.Id,
 		DataType: FormatStorageData(data.DataType),
 		Data:     data.Data,
-		Meta:     data.Meta,
-	}, nil
+		Meta:     make(map[string]string),
+	}
+
+	return resp, json.Unmarshal(data.Meta, &resp.Meta)
 }
 
 func (s *DatakeeperServiceImpl) Delete(ctx context.Context, in *pb.DeleteRequest) (*pb.DeleteResponse, error) {
 	userId, _ := ctx.Value("userId").(string)
 
 	ok, err := s.stor.Delete(ctx, &storage.DeleteData{
-		UserId: userId,
+		UserID: userId,
 		Id:     in.Id,
 	})
 	if err != nil {

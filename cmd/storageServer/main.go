@@ -1,35 +1,29 @@
 package main
 
 import (
-	"context"
-	"errors"
+	"flag"
 
 	"github.com/GermanVor/data-keeper/cmd/storageServer/service"
 	"github.com/GermanVor/data-keeper/cmd/storageServer/storage"
 )
 
-type StorageMock struct{}
+var (
+	addr     = ":5678"
+	userAddr = ":1234"
+	dataBaseDSN = "postgres://zzman:@localhost:5432/postgres"
+)
 
-func (s *StorageMock) New(ctx context.Context, newData *storage.NewData) (string, error) {
-	return "", nil
+func init() {
+	flag.StringVar(&addr, "a", addr, "address of the service")
+	flag.StringVar(&userAddr, "ua", userAddr, "address of the user service")
+	flag.StringVar(&dataBaseDSN, "d", dataBaseDSN, "")
 }
-
-func (s *StorageMock) Get(ctx context.Context, getData *storage.GetData) (*storage.Data, error) {
-	return nil, errors.New("")
-}
-
-func (s *StorageMock) Set(ctx context.Context, setData *storage.SetData) (*storage.Data, error) {
-	return nil, errors.New("")
-}
-
-func (s *StorageMock) Delete(ctx context.Context, deleteData *storage.DeleteData) (bool, error) {
-	return false, nil
-}
-
-var _ storage.Interface = (*StorageMock)(nil)
 
 func main() {
-	s := service.Init(":1234", &StorageMock{}, ":5678")
+	flag.Parse()
+
+	stor := storage.Init(dataBaseDSN)
+	s := service.Init(addr, stor, userAddr)
 
 	s.Start()
 }
