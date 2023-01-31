@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"fmt"
 
 	"github.com/GermanVor/data-keeper/cmd/userStorageServer/service"
 	"github.com/GermanVor/data-keeper/cmd/userStorageServer/storage"
@@ -23,5 +24,8 @@ func main() {
 	stor := storage.Init(dataBaseDSN)
 	s := service.Init(addr, stor)
 
-	s.Start()
+	err := s.Start()
+	if err != nil {
+		fmt.Println(err.Error())
+	}
 }

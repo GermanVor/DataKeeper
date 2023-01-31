@@ -1,7 +1,6 @@
 package service
 
 import (
-	"fmt"
 	"net"
 
 	userRPC "github.com/GermanVor/data-keeper/cmd/userStorageServer/rpc"
@@ -32,8 +31,6 @@ func (s *Service) Start() error {
 	}
 
 	pbUser.RegisterUserServer(s.server, s.impl)
-
-	fmt.Println("User Server gRPC started", s.addr)
 
 	return s.server.Serve(listen)
 }

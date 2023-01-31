@@ -11,7 +11,7 @@ func (d *DataType) Format() storage.DataType {
 	switch *d {
 	case DataType_BANK_CARD:
 		return storage.BankCard
-	case DataType_LOGG_PASS:
+	case DataType_LOG_PASS:
 		return storage.LogPass
 	case DataType_OTHER:
 		return storage.Other

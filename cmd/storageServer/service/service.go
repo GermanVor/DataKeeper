@@ -3,7 +3,6 @@ package service
 import (
 	"context"
 	"errors"
-	"fmt"
 	"net"
 
 	rpc "github.com/GermanVor/data-keeper/cmd/storageServer/rpc"
@@ -38,8 +37,6 @@ func (s *Impl) Start() error {
 	}
 
 	pbDatakeeper.RegisterDataKeeperServer(s.server, s.serviceImpl)
-
-	fmt.Println("Server gRPC started")
 
 	return s.server.Serve(listen)
 }

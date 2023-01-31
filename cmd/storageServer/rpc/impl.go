@@ -14,7 +14,7 @@ func FormatStorageData(sD storage.DataType) pb.DataType {
 	case storage.BankCard:
 		return pb.DataType_BANK_CARD
 	case storage.LogPass:
-		return pb.DataType_LOGG_PASS
+		return pb.DataType_LOG_PASS
 	case storage.Other:
 		return pb.DataType_OTHER
 	case storage.Text:
@@ -56,13 +56,15 @@ func (s *DatakeeperServiceImpl) Get(ctx context.Context, in *pb.GetRequest) (*pb
 	}
 
 	resp := &pb.GetResponse{
-		Id:       data.Id,
-		DataType: FormatStorageData(data.DataType),
-		Data:     data.Data,
-		Meta:     make(map[string]string),
+		Data: &pb.Data{
+			Id:       data.Id,
+			DataType: FormatStorageData(data.DataType),
+			Data:     data.Data,
+			Meta:     make(map[string]string),
+		},
 	}
 
-	return resp, json.Unmarshal(data.Meta, &resp.Meta)
+	return resp, json.Unmarshal(data.Meta, &resp.Data.Meta)
 }
 
 func (s *DatakeeperServiceImpl) GetBatch(ctx context.Context, in *pb.GetBatchRequest) (*pb.GetBatchResponse, error) {
@@ -77,11 +79,11 @@ func (s *DatakeeperServiceImpl) GetBatch(ctx context.Context, in *pb.GetBatchReq
 	}
 
 	resp := &pb.GetBatchResponse{
-		DataArray: make([]*pb.GetBatchResponse_Data, len(batch)),
+		DataArray: make([]*pb.Data, len(batch)),
 	}
 
 	for i, row := range batch {
-		resp.DataArray[i] = &pb.GetBatchResponse_Data{
+		resp.DataArray[i] = &pb.Data{
 			Id:       row.Id,
 			DataType: pb.DataType(row.DataType),
 			Data:     row.Data,
@@ -111,13 +113,15 @@ func (s *DatakeeperServiceImpl) Set(ctx context.Context, in *pb.SetRequest) (*pb
 	}
 
 	resp := &pb.SetResponse{
-		Id:       data.Id,
-		DataType: FormatStorageData(data.DataType),
-		Data:     data.Data,
-		Meta:     make(map[string]string),
+		Data: &pb.Data{
+			Id:       data.Id,
+			DataType: FormatStorageData(data.DataType),
+			Data:     data.Data,
+			Meta:     make(map[string]string),
+		},
 	}
 
-	return resp, json.Unmarshal(data.Meta, &resp.Meta)
+	return resp, json.Unmarshal(data.Meta, &resp.Data.Meta)
 }
 
 func (s *DatakeeperServiceImpl) Delete(ctx context.Context, in *pb.DeleteRequest) (*pb.DeleteResponse, error) {

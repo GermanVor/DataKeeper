@@ -6,10 +6,12 @@ import (
 	"crypto/sha1"
 	"encoding/hex"
 	"errors"
+	"fmt"
 	"io"
 	"log"
 	"strconv"
 
+	common "github.com/GermanVor/data-keeper/internal/common"
 	"github.com/jackc/pgtype"
 	"github.com/jackc/pgx"
 	"github.com/jackc/pgx/v4/pgxpool"
@@ -181,6 +183,13 @@ func (s *Impl) GetSecret(ctx context.Context, userID string) (string, error) {
 
 var _ Interface = (*Impl)(nil)
 
+func createDefaultUser(conn *pgxpool.Pool) {
+	_, err := conn.Exec(context.TODO(), "INSERT INTO users (secret) VALUES ('"+common.DEFAULT_USER_SECRET+"')")
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+}
+
 func Init(databaseURI string) Interface {
 	conn, err := pgxpool.Connect(context.TODO(), databaseURI)
 	if err != nil {
@@ -191,6 +200,9 @@ func Init(databaseURI string) Interface {
 	if err != nil {
 		log.Fatalln(err.Error())
 	}
+
+	//
+	createDefaultUser(conn)
 
 	return &Impl{
 		dbPool: conn,

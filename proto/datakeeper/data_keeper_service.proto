@@ -9,10 +9,17 @@ option go_package = "data_keeper_service/proto";
 
 enum DataType {
     UNSPECIFIED = 0;
-    LOGG_PASS = 1;
+    LOG_PASS = 1;
     TEXT = 2;
     BANK_CARD = 3;
     OTHER = 4;
+}
+
+message Data {
+    string id = 1;
+    DataType dataType = 2;
+    bytes data = 3;
+    map<string, string> meta = 4;
 }
 
 service DataKeeper {
@@ -39,10 +46,7 @@ message GetRequest {
 }
 
 message GetResponse {
-    string id = 1;
-    DataType dataType = 2;
-    bytes data = 3;
-    map<string, string> meta = 4;
+    Data data = 1;
 }
 
 
@@ -52,16 +56,8 @@ message GetBatchRequest {
 }
 
 message GetBatchResponse {
-    message Data {
-        string id = 1;
-        DataType dataType = 2;
-        bytes data = 3;
-        map<string, string> meta = 4;
-    }
-
     repeated Data dataArray = 1;
 }
-
 
 message SetRequest {
     string id = 1;
@@ -70,10 +66,7 @@ message SetRequest {
 }
 
 message SetResponse {
-    string id = 1;
-    DataType dataType = 2;
-    bytes data = 3;
-    map<string, string> meta = 4;
+    Data data = 1;
 }
 
 

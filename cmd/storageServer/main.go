@@ -8,8 +8,8 @@ import (
 )
 
 var (
-	addr     = ":5678"
-	userAddr = ":1234"
+	addr        = ":5678"
+	userAddr    = ":1234"
 	dataBaseDSN = "postgres://zzman:@localhost:5432/postgres"
 )
 
