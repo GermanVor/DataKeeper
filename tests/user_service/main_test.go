@@ -18,11 +18,13 @@ import (
 	"google.golang.org/grpc/test/bufconn"
 )
 
-const bufSize = 1024 * 1024
-
-const USER_LOGIN = "USER_LOGIN_QWERTY"
-const USER_ID = "USER_ID_QWERTY"
-const SECRET = "SECRET_YTREWQ"
+const (
+	bufSize    = 1024 * 1024
+	USER_LOGIN = "USER_LOGIN_QWERTY"
+	USER_ID    = "USER_ID_QWERTY"
+	SECRET     = "SECRET_YTREWQ"
+	PASSWORD   = "PASSWORD"
+)
 
 var TOKEN, _ = jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 	"userId": USER_ID,
@@ -30,12 +32,15 @@ var TOKEN, _ = jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 
 type StorageMock struct{}
 
-func (s *StorageMock) LogIn(ctx context.Context, userData *storage.UserData) (string, error) {
-	if userData.Login == USER_LOGIN {
-		return USER_ID, nil
+func (s *StorageMock) LogIn(ctx context.Context, login, password string) (*storage.UserOutput, error) {
+	if login == USER_LOGIN {
+		return &storage.UserOutput{
+			UserID: USER_ID,
+			Secret: SECRET,
+		}, nil
 	}
 
-	return "", errors.New("")
+	return nil, errors.New("")
 }
 
 func (s *StorageMock) GetSecret(ctx context.Context, userId string) (string, error) {
@@ -46,9 +51,9 @@ func (s *StorageMock) GetSecret(ctx context.Context, userId string) (string, err
 	return "", errors.New("")
 }
 
-func (s *StorageMock) SignIn(ctx context.Context, login, password string) (*storage.SignOutput, error) {
-	if login == USER_LOGIN {
-		return &storage.SignOutput{
+func (s *StorageMock) SignIn(ctx context.Context, userData *storage.UserData) (*storage.UserOutput, error) {
+	if userData.Login == USER_LOGIN && userData.Secret == SECRET {
+		return &storage.UserOutput{
 			UserID: USER_ID,
 			Secret: SECRET,
 		}, nil
@@ -92,8 +97,8 @@ func TestBase(t *testing.T) {
 
 	t.Run("LogIn", func(t *testing.T) {
 		resp, err := client.LogIn(ctx, &pb.LogInRequest{
-			Login:  USER_LOGIN,
-			Secret: SECRET,
+			Login:    USER_LOGIN,
+			Password: PASSWORD,
 		})
 
 		require.NoError(t, err)
@@ -103,7 +108,9 @@ func TestBase(t *testing.T) {
 	t.Run("SignIn", func(t *testing.T) {
 		resp, err := client.SignIn(ctx, &pb.SignInRequest{
 			Login:    USER_LOGIN,
-			Password: "",
+			Password: PASSWORD,
+			Email:    "",
+			Secret:   SECRET,
 		})
 
 		require.NoError(t, err)
@@ -116,7 +123,7 @@ func TestBase(t *testing.T) {
 		})
 
 		require.NoError(t, err)
-		assert.Equal(t, USER_ID, resp.UserID)
+		assert.Equal(t, USER_ID, resp.UserId)
 	})
 }
 
@@ -132,8 +139,8 @@ func TestNegative(t *testing.T) {
 
 	t.Run("Negative LogIn", func(t *testing.T) {
 		resp, _ := client.LogIn(ctx, &pb.LogInRequest{
-			Login:  USER_LOGIN + "qwe",
-			Secret: "",
+			Login:    USER_LOGIN + "qwe",
+			Password: PASSWORD,
 		})
 
 		assert.Equal(t, (*pb.LogInResponse)(nil), resp)
@@ -141,8 +148,8 @@ func TestNegative(t *testing.T) {
 
 	t.Run("Negative SignIn", func(t *testing.T) {
 		resp, _ := client.SignIn(ctx, &pb.SignInRequest{
-			Login:    USER_LOGIN + "qwe",
-			Password: "",
+			Login:    USER_LOGIN,
+			Password: PASSWORD + "qwe",
 		})
 
 		assert.Equal(t, (*pb.SignInResponse)(nil), resp)

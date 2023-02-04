@@ -64,7 +64,9 @@ func (s *DatakeeperServiceImpl) Get(ctx context.Context, in *pb.GetRequest) (*pb
 		},
 	}
 
-	return resp, json.Unmarshal(data.Meta, &resp.Data.Meta)
+	err = json.Unmarshal(data.Meta, &resp.Data.Meta)
+
+	return resp, err
 }
 
 func (s *DatakeeperServiceImpl) GetBatch(ctx context.Context, in *pb.GetBatchRequest) (*pb.GetBatchResponse, error) {

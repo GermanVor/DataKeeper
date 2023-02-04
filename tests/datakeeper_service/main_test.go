@@ -2,12 +2,13 @@ package tests
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"log"
 	"net"
 	"testing"
 
-	"github.com/GermanVor/data-keeper/cmd/storageServer/rpc"
+	datakeeperrpc "github.com/GermanVor/data-keeper/cmd/storageServer/rpc"
 	"github.com/GermanVor/data-keeper/cmd/storageServer/storage"
 	pb "github.com/GermanVor/data-keeper/proto/datakeeper"
 	"github.com/bmizerany/assert"
@@ -21,6 +22,7 @@ var (
 	ID        = "ID"
 	DATA_TYPE = pb.DataType_TEXT
 	DATA      = []byte("qwerty")
+	META, _   = json.Marshal(make(map[string]string))
 )
 
 const bufSize = 1024 * 1024
@@ -37,7 +39,7 @@ func (s *StorageMock) Get(ctx context.Context, getData *storage.GetData) (*stora
 			Id:       ID,
 			DataType: DATA_TYPE.Format(),
 			Data:     DATA,
-			Meta:     make(map[string]string),
+			Meta:     META,
 		}, nil
 	}
 
@@ -63,6 +65,10 @@ func (s *StorageMock) Delete(ctx context.Context, deleteData *storage.DeleteData
 	}
 
 	return false, nil
+}
+
+func (s *StorageMock) GetBatch(ctx context.Context, getBatch *storage.GetBatch) ([]*storage.Data, error) {
+	return nil, nil
 }
 
 var _ storage.Interface = (*StorageMock)(nil)
@@ -115,9 +121,9 @@ func TestBase(t *testing.T) {
 		})
 
 		require.NoError(t, err)
-		assert.Equal(t, ID, resp.Id)
-		assert.Equal(t, DATA, resp.Data)
-		assert.Equal(t, DATA_TYPE, resp.DataType)
+		assert.Equal(t, ID, resp.Data.Id)
+		assert.Equal(t, DATA, resp.Data.Data)
+		assert.Equal(t, DATA_TYPE, resp.Data.DataType)
 	})
 
 	t.Run("Set", func(t *testing.T) {
@@ -131,9 +137,9 @@ func TestBase(t *testing.T) {
 		})
 
 		require.NoError(t, err)
-		assert.Equal(t, newData, resp.Data)
-		assert.Equal(t, ID, resp.Id)
-		assert.Equal(t, DATA_TYPE, resp.DataType)
-		assert.Equal(t, newMeta, resp.Meta)
+		assert.Equal(t, newData, resp.Data.Data)
+		assert.Equal(t, ID, resp.Data.Id)
+		assert.Equal(t, DATA_TYPE, resp.Data.DataType)
+		assert.Equal(t, newMeta, resp.Data.Meta)
 	})
 }

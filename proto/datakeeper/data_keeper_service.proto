@@ -17,7 +17,7 @@ enum DataType {
 
 message Data {
     string id = 1;
-    DataType dataType = 2;
+    DataType data_type = 2;
     bytes data = 3;
     map<string, string> meta = 4;
 }
@@ -31,7 +31,7 @@ service DataKeeper {
 }
 
 message NewRequest {
-    DataType dataType = 1;
+    DataType data_type = 1;
     bytes data = 2;
     map<string, string> meta = 3;
 }
@@ -56,7 +56,7 @@ message GetBatchRequest {
 }
 
 message GetBatchResponse {
-    repeated Data dataArray = 1;
+    repeated Data data_array = 1;
 }
 
 message SetRequest {

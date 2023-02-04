@@ -71,7 +71,7 @@ func (s *UserRPCImpl) CheckAccess(ctx context.Context, in *pb.CheckAccessRequest
 	}
 
 	return &pb.CheckAccessResponse{
-		UserID: userId,
+		UserId: userId,
 	}, nil
 }
 

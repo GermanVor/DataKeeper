@@ -38,7 +38,7 @@ message SignInResponse {
 
 message CreateAccountRequest {
     string token = 1;
-    string accountName = 2;
+    string account_name = 2;
     string password = 3;
 }
 
@@ -52,5 +52,5 @@ message CheckAccessRequest {
 }
 
 message CheckAccessResponse {
-    string userId = 1;
+    string user_id = 1;
 }

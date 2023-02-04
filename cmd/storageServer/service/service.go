@@ -65,7 +65,7 @@ func CheckAccessInterceptor(userClient pbUser.UserClient) grpc.UnaryServerInterc
 			return nil, errors.New("")
 		}
 
-		newCtx := context.WithValue(ctx, "userId", checkAccessResp.UserID)
+		newCtx := context.WithValue(ctx, "userId", checkAccessResp.UserId)
 
 		return handler(newCtx, req)
 	}
