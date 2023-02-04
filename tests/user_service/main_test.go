@@ -7,8 +7,8 @@ import (
 	"net"
 	"testing"
 
-	userRPC "github.com/GermanVor/data-keeper/cmd/userStorageServer/rpc"
-	"github.com/GermanVor/data-keeper/cmd/userStorageServer/storage"
+	userRPC "github.com/GermanVor/data-keeper/cmd/userServer/rpc"
+	"github.com/GermanVor/data-keeper/cmd/userServer/storage"
 	"github.com/GermanVor/data-keeper/internal/common"
 	pb "github.com/GermanVor/data-keeper/proto/user"
 	"github.com/bmizerany/assert"

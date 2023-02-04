@@ -3,8 +3,8 @@ package service
 import (
 	"net"
 
-	userRPC "github.com/GermanVor/data-keeper/cmd/userStorageServer/rpc"
-	"github.com/GermanVor/data-keeper/cmd/userStorageServer/storage"
+	userRPC "github.com/GermanVor/data-keeper/cmd/userServer/rpc"
+	"github.com/GermanVor/data-keeper/cmd/userServer/storage"
 	pbUser "github.com/GermanVor/data-keeper/proto/user"
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
 	grpc_logrus "github.com/grpc-ecosystem/go-grpc-middleware/logging/logrus"

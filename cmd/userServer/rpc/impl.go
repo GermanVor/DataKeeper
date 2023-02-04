@@ -4,7 +4,7 @@ import (
 	"context"
 	"strings"
 
-	"github.com/GermanVor/data-keeper/cmd/userStorageServer/storage"
+	"github.com/GermanVor/data-keeper/cmd/userServer/storage"
 	"github.com/GermanVor/data-keeper/internal/common"
 	pb "github.com/GermanVor/data-keeper/proto/user"
 	"github.com/golang-jwt/jwt/v4"
