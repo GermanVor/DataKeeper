@@ -6,6 +6,7 @@ import (
 	"errors"
 
 	"github.com/GermanVor/data-keeper/cmd/storageServer/storage"
+	"github.com/GermanVor/data-keeper/internal/common"
 	pb "github.com/GermanVor/data-keeper/proto/datakeeper"
 )
 
@@ -30,7 +31,7 @@ type DatakeeperServiceImpl struct {
 }
 
 func (s *DatakeeperServiceImpl) New(ctx context.Context, in *pb.NewRequest) (*pb.NewResponse, error) {
-	userId, _ := ctx.Value("userId").(string)
+	userId, _ := ctx.Value(common.USER_ID_CTX_NAME).(string)
 
 	newData, err := in.Format(userId)
 	if err != nil {
@@ -48,7 +49,7 @@ func (s *DatakeeperServiceImpl) New(ctx context.Context, in *pb.NewRequest) (*pb
 }
 
 func (s *DatakeeperServiceImpl) Get(ctx context.Context, in *pb.GetRequest) (*pb.GetResponse, error) {
-	userId, _ := ctx.Value("userId").(string)
+	userId, _ := ctx.Value(common.USER_ID_CTX_NAME).(string)
 
 	data, err := s.stor.Get(ctx, &storage.GetData{UserID: userId, Id: in.Id})
 	if err != nil {
@@ -70,7 +71,7 @@ func (s *DatakeeperServiceImpl) Get(ctx context.Context, in *pb.GetRequest) (*pb
 }
 
 func (s *DatakeeperServiceImpl) GetBatch(ctx context.Context, in *pb.GetBatchRequest) (*pb.GetBatchResponse, error) {
-	userId, _ := ctx.Value("userId").(string)
+	userId, _ := ctx.Value(common.USER_ID_CTX_NAME).(string)
 
 	batch, err := s.stor.GetBatch(
 		ctx,
@@ -102,7 +103,7 @@ func (s *DatakeeperServiceImpl) GetBatch(ctx context.Context, in *pb.GetBatchReq
 }
 
 func (s *DatakeeperServiceImpl) Set(ctx context.Context, in *pb.SetRequest) (*pb.SetResponse, error) {
-	userId, _ := ctx.Value("userId").(string)
+	userId, _ := ctx.Value(common.USER_ID_CTX_NAME).(string)
 
 	req, err := in.Format(userId)
 	if err != nil {
@@ -127,7 +128,7 @@ func (s *DatakeeperServiceImpl) Set(ctx context.Context, in *pb.SetRequest) (*pb
 }
 
 func (s *DatakeeperServiceImpl) Delete(ctx context.Context, in *pb.DeleteRequest) (*pb.DeleteResponse, error) {
-	userId, _ := ctx.Value("userId").(string)
+	userId, _ := ctx.Value(common.USER_ID_CTX_NAME).(string)
 
 	ok, err := s.stor.Delete(ctx, &storage.DeleteData{
 		UserID: userId,

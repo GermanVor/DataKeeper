@@ -9,6 +9,7 @@ import (
 
 	userRPC "github.com/GermanVor/data-keeper/cmd/userStorageServer/rpc"
 	"github.com/GermanVor/data-keeper/cmd/userStorageServer/storage"
+	"github.com/GermanVor/data-keeper/internal/common"
 	pb "github.com/GermanVor/data-keeper/proto/user"
 	"github.com/bmizerany/assert"
 	"github.com/golang-jwt/jwt"
@@ -27,7 +28,7 @@ const (
 )
 
 var TOKEN, _ = jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-	"userId": USER_ID,
+	common.USER_ID_CTX_NAME: USER_ID,
 }).SignedString([]byte(SECRET))
 
 type StorageMock struct{}

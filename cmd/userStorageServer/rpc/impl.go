@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/GermanVor/data-keeper/cmd/userStorageServer/storage"
+	"github.com/GermanVor/data-keeper/internal/common"
 	pb "github.com/GermanVor/data-keeper/proto/user"
 	"github.com/golang-jwt/jwt/v4"
 )
@@ -18,7 +19,7 @@ type UserRPCImpl struct {
 
 func buildUserToke(userId, secret string) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"userId": userId,
+		common.USER_ID_CTX_NAME: userId,
 	})
 
 	tokenString, err := token.SignedString([]byte(secret))
@@ -57,7 +58,7 @@ func (s *UserRPCImpl) CheckAccess(ctx context.Context, in *pb.CheckAccessRequest
 
 	var userId string
 	var ok bool
-	if userId, ok = claim["userId"].(string); !ok {
+	if userId, ok = claim[common.USER_ID_CTX_NAME].(string); !ok {
 		return nil, nil
 	}
 

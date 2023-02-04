@@ -7,6 +7,7 @@ import (
 
 	rpc "github.com/GermanVor/data-keeper/cmd/storageServer/rpc"
 	"github.com/GermanVor/data-keeper/cmd/storageServer/storage"
+	"github.com/GermanVor/data-keeper/internal/common"
 	pbDatakeeper "github.com/GermanVor/data-keeper/proto/datakeeper"
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
 	grpc_logrus "github.com/grpc-ecosystem/go-grpc-middleware/logging/logrus"
@@ -55,7 +56,7 @@ func CheckAccessInterceptor(userClient pbUser.UserClient) grpc.UnaryServerInterc
 			return nil, errors.New("")
 		}
 
-		jwtArr := md.Get("jwt")
+		jwtArr := md.Get(common.JWT_CTX_NAME)
 		if len(jwtArr) == 0 {
 			return nil, errors.New("")
 		}
@@ -65,7 +66,7 @@ func CheckAccessInterceptor(userClient pbUser.UserClient) grpc.UnaryServerInterc
 			return nil, errors.New("")
 		}
 
-		newCtx := context.WithValue(ctx, "userId", checkAccessResp.UserId)
+		newCtx := context.WithValue(ctx, common.USER_ID_CTX_NAME, checkAccessResp.UserId)
 
 		return handler(newCtx, req)
 	}

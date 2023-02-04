@@ -12,6 +12,7 @@ import (
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/metadata"
 
+	"github.com/GermanVor/data-keeper/internal/common"
 	datakeeperPB "github.com/GermanVor/data-keeper/proto/datakeeper"
 	userPB "github.com/GermanVor/data-keeper/proto/user"
 )
@@ -396,7 +397,7 @@ func (s *Impl) Start(reader *bufio.Reader, ctx context.Context) {
 
 	currentCtx := metadata.AppendToOutgoingContext(
 		ctx,
-		"jwt",
+		common.JWT_CTX_NAME,
 		s.token,
 	)
 
