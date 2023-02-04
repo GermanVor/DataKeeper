@@ -79,11 +79,9 @@ func readData(data *datakeeperPB.Data, reader *bufio.Reader) error {
 	fmt.Print(valueStr)
 
 	switch data.DataType {
-	case datakeeperPB.DataType_LOG_PASS:
-		fmt.Println(string(data.Data[:]))
-	case datakeeperPB.DataType_TEXT:
-		fmt.Println(string(data.Data[:]))
-	case datakeeperPB.DataType_BANK_CARD:
+	case datakeeperPB.DataType_LOG_PASS,
+		datakeeperPB.DataType_TEXT,
+		datakeeperPB.DataType_BANK_CARD:
 		fmt.Println(string(data.Data[:]))
 	default:
 		for {
