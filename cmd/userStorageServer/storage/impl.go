@@ -2,90 +2,16 @@ package storage
 
 import (
 	"context"
-	"crypto/rand"
-	"crypto/sha1"
 	"encoding/hex"
 	"errors"
 	"fmt"
-	"io"
 	"log"
 	"strconv"
 
-	common "github.com/GermanVor/data-keeper/internal/common"
+	"github.com/GermanVor/data-keeper/internal/common"
 	"github.com/jackc/pgtype"
 	"github.com/jackc/pgx"
 	"github.com/jackc/pgx/v4/pgxpool"
-	"golang.org/x/crypto/scrypt"
-)
-
-type UserData struct {
-	Login    string
-	Password string
-	Email    string
-	Secret   string
-}
-
-type UserOutput struct {
-	UserID string
-	Secret string
-}
-
-type Interface interface {
-	SignIn(ctx context.Context, userData *UserData) (*UserOutput, error)
-	LogIn(ctx context.Context, login, password string) (*UserOutput, error)
-	GetSecret(ctx context.Context, userID string) (string, error)
-}
-
-func getLogin(login string) string {
-	loginHash := sha1.Sum([]byte(login))
-	return hex.EncodeToString(loginHash[:])
-}
-
-func getPass(pass string, salt []byte) (string, error) {
-	passHash, err := scrypt.Key([]byte(pass), salt, 1<<14, 8, 1, 64)
-	if err != nil {
-		return "", err
-	}
-
-	return hex.EncodeToString(passHash), nil
-}
-
-func getSalt() ([]byte, error) {
-	salt := make([]byte, 32)
-	_, err := io.ReadFull(rand.Reader, salt)
-	if err != nil {
-		return nil, err
-	}
-
-	return salt, nil
-}
-
-var (
-	// UPDATE users SET (login, pass, salt, email) = ('a', 'b', 'c', 'd') WHERE secret='test';
-	setUserSQL = "UPDATE users SET (login, pass, salt, email) = " +
-		"($2, $3, $4, $5) WHERE secret=$1 RETURNING users.userID"
-
-	// SELECT secret, userID FROM users WHERE login=$1 and pass=$2
-	loginSQL = "SELECT secret, userID FROM users WHERE login=$1 and pass=$2"
-
-	// SELECT salt FROM users WHERE login=$1;
-	getSaltSQL = "SELECT salt FROM users WHERE login=$1"
-
-	// SELECT login FROM users WHERE secret=$1;
-	getLogginSQL = "SELECT login FROM users WHERE secret=$1"
-
-	// SELECT secret FROM users WHERE userID=$1;
-	getSecretSQL = "SELECT secret FROM users WHERE userID=$1"
-
-	// Create table
-	createTableSQL = "CREATE TABLE IF NOT EXISTS users (" +
-		"login text UNIQUE, " +
-		"pass text, " +
-		"salt text, " +
-		"secret text UNIQUE," +
-		"email text, " +
-		"userID SERIAL " +
-		");"
 )
 
 type Impl struct {
@@ -201,7 +127,6 @@ func Init(databaseURI string) Interface {
 		log.Fatalln(err.Error())
 	}
 
-	//
 	createDefaultUser(conn)
 
 	return &Impl{
