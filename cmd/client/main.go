@@ -23,9 +23,6 @@ var (
 	secretValuePath = ""
 )
 
-type UserClient struct {
-}
-
 func init() {
 	flag.StringVar(&addr, "a", addr, "address of the service")
 	flag.StringVar(&userAddr, "ua", userAddr, "address of the user service")

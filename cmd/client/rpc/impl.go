@@ -149,8 +149,6 @@ type Impl struct {
 	dataKeeperClient datakeeperPB.DataKeeperClient
 	token            string
 	reader           *bufio.Reader
-
-	ctx context.Context
 }
 
 type LogIn struct {
@@ -198,7 +196,7 @@ func (s *Impl) SignIn(ctx context.Context, req *SignIn) error {
 	return nil
 }
 
-func (s *Impl) new() {
+func (s *Impl) new(ctx context.Context) {
 	for {
 		fmt.Println(exitStr)
 		fmt.Print(enterDataTypeStr)
@@ -240,7 +238,7 @@ func (s *Impl) new() {
 			continue
 		}
 
-		resp, err := s.dataKeeperClient.New(s.ctx, req)
+		resp, err := s.dataKeeperClient.New(ctx, req)
 		if err != nil {
 			fmt.Println(err.Error())
 			fmt.Println(tryAgainStr)
@@ -251,7 +249,7 @@ func (s *Impl) new() {
 	}
 }
 
-func (s *Impl) get() {
+func (s *Impl) get(ctx context.Context) {
 	for {
 		fmt.Println(exitStr)
 		fmt.Print(enterItemIdStr)
@@ -261,7 +259,7 @@ func (s *Impl) get() {
 			return
 		}
 
-		resp, err := s.dataKeeperClient.Get(s.ctx, &datakeeperPB.GetRequest{
+		resp, err := s.dataKeeperClient.Get(ctx, &datakeeperPB.GetRequest{
 			Id: id,
 		})
 		if err != nil {
@@ -279,7 +277,7 @@ func (s *Impl) get() {
 	}
 }
 
-func (s *Impl) set() {
+func (s *Impl) set(ctx context.Context) {
 	for {
 		fmt.Println(exitStr)
 		fmt.Print(enterItemIdStr)
@@ -289,7 +287,7 @@ func (s *Impl) set() {
 			return
 		}
 
-		prevData, err := s.dataKeeperClient.Get(s.ctx, &datakeeperPB.GetRequest{
+		prevData, err := s.dataKeeperClient.Get(ctx, &datakeeperPB.GetRequest{
 			Id: id,
 		})
 		if err != nil {
@@ -318,7 +316,7 @@ func (s *Impl) set() {
 			continue
 		}
 
-		_, err = s.dataKeeperClient.Set(s.ctx, newData)
+		_, err = s.dataKeeperClient.Set(ctx, newData)
 		if err != nil {
 			fmt.Println(err.Error())
 			fmt.Println(tryAgainStr)
@@ -329,12 +327,12 @@ func (s *Impl) set() {
 	}
 }
 
-func (s *Impl) list() {
+func (s *Impl) list(ctx context.Context) {
 	offset := int32(0)
 	limit := int32(5)
 
 	for {
-		resp, err := s.dataKeeperClient.GetBatch(s.ctx, &datakeeperPB.GetBatchRequest{
+		resp, err := s.dataKeeperClient.GetBatch(ctx, &datakeeperPB.GetBatchRequest{
 			Offset: offset,
 			Limit:  limit,
 		})
@@ -369,7 +367,7 @@ func (s *Impl) list() {
 	}
 }
 
-func (s *Impl) delete() {
+func (s *Impl) delete(ctx context.Context) {
 	for {
 		fmt.Println(exitStr)
 		fmt.Print(enterItemIdStr)
@@ -379,7 +377,7 @@ func (s *Impl) delete() {
 			return
 		}
 
-		_, err := s.dataKeeperClient.Delete(s.ctx, &datakeeperPB.DeleteRequest{
+		_, err := s.dataKeeperClient.Delete(ctx, &datakeeperPB.DeleteRequest{
 			Id: id,
 		})
 		if err != nil {
@@ -396,7 +394,7 @@ func (s *Impl) delete() {
 func (s *Impl) Start(reader *bufio.Reader, ctx context.Context) {
 	s.reader = reader
 
-	s.ctx = metadata.AppendToOutgoingContext(
+	currentCtx := metadata.AppendToOutgoingContext(
 		ctx,
 		"jwt",
 		s.token,
@@ -413,15 +411,15 @@ func (s *Impl) Start(reader *bufio.Reader, ctx context.Context) {
 		case quitallComm:
 			return
 		case newComm:
-			s.new()
+			s.new(currentCtx)
 		case getComm:
-			s.get()
+			s.get(currentCtx)
 		case setComm:
-			s.set()
+			s.set(currentCtx)
 		case deleteComm:
-			s.delete()
+			s.delete(currentCtx)
 		case listComm:
-			s.list()
+			s.list(currentCtx)
 		default:
 			fmt.Println(unknownCommandStr, tryAgainStr)
 		}
