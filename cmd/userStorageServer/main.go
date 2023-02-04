@@ -6,11 +6,12 @@ import (
 
 	"github.com/GermanVor/data-keeper/cmd/userStorageServer/service"
 	"github.com/GermanVor/data-keeper/cmd/userStorageServer/storage"
+	"github.com/GermanVor/data-keeper/internal/common"
 )
 
 var (
-	addr        = ":1234"
-	dataBaseDSN = "postgres://zzman:@localhost:5432/postgres"
+	addr        = common.DEFAULT_USER_SERVICE_ADDR
+	dataBaseDSN = common.DEFAULT_DATA_BASE_DSN
 )
 
 func init() {

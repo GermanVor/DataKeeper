@@ -17,8 +17,8 @@ import (
 )
 
 var (
-	addr            = ":5678"
-	userAddr        = ":1234"
+	addr            = common.DEFAULT_STORAGE_SERVICE_ADDR
+	userAddr        = common.DEFAULT_USER_SERVICE_ADDR
 	secretValue     = common.DEFAULT_USER_SECRET
 	secretValuePath = ""
 )
