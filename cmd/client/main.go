@@ -32,6 +32,11 @@ func init() {
 	flag.StringVar(&secretValuePath, "s", secretValuePath, "path to the file with secret")
 }
 
+var (
+	loginComm  = "l"
+	signInComm = "s"
+)
+
 func main() {
 	flag.Parse()
 
@@ -45,11 +50,11 @@ func main() {
 
 	ans := ""
 	for {
-		fmt.Print("Shell you login (l) or sign (s) in ?: ")
+		fmt.Print("Shell you login (" + loginComm + ") or sign (" + signInComm + ") in ?: ")
 		ans, _ = reader.ReadString('\n')
 		ans = strings.TrimSpace(ans)
 
-		if ans == "l" || ans == "s" {
+		if ans == loginComm || ans == signInComm {
 			break
 		}
 
@@ -70,7 +75,7 @@ func main() {
 	password := strings.TrimSpace(string(bytePassword))
 
 	ctx := context.Background()
-	if ans == "s" {
+	if ans == signInComm {
 		fmt.Print("\nEnter email: ")
 		email, _ := reader.ReadString('\n')
 

@@ -16,8 +16,66 @@ import (
 	userPB "github.com/GermanVor/data-keeper/proto/user"
 )
 
+var (
+	tryAgainStr         = "Try again."
+	enterPathToSaveData = "Enter path to save Data : "
+
+	quitallComm = "q"
+	exitStr     = "Exit - " + quitallComm
+
+	newComm = "n"
+	newStr  = "New - " + newComm
+
+	getComm = "g"
+	getStr  = "Get - " + getComm
+
+	setComm = "s"
+	setStr  = "Set - " + setComm
+
+	listComm = "l"
+	listStr  = "List - " + listComm
+
+	deleteComm = "d"
+	deleteStr  = "Delete - " + deleteComm
+
+	nextCommandStr = "Next command.\n\t" +
+		exitStr + "\n\t" +
+		newStr + "\n\t" +
+		getStr + "\n\t" +
+		setStr + "\n\t" +
+		listStr + "\n\t" +
+		deleteStr + "\n: "
+
+	valueStr = "Value : "
+	metaStr  = "Meta : "
+
+	enterItemIdStr = "Enter item Id : "
+
+	unknownCommandStr = "Unknown command."
+
+	itemDeletedStr = "Item deleted"
+
+	endStr          = "End"
+	nextAnyOtherStr = "Next - any other symbol"
+
+	successStr = "Success"
+
+	logPassComm      = "lp"
+	textComm         = "t"
+	bankCardComm     = "bc"
+	otherComm        = "o"
+	enterDataTypeStr = "Enter DataType (" +
+		"LOG_PASS - " + logPassComm + ", " +
+		"TEXT - " + textComm + ", " +
+		"BANK_CARD - " + bankCardComm + ", " +
+		"OTHER - " + otherComm +
+		") : "
+	unknownDataTypeStr = "Unknown DataType."
+	newIdStr           = "New Id."
+)
+
 func readData(data *datakeeperPB.Data, reader *bufio.Reader) error {
-	fmt.Print("Value : ")
+	fmt.Print(valueStr)
 
 	switch data.DataType {
 	case datakeeperPB.DataType_LOG_PASS:
@@ -28,7 +86,7 @@ func readData(data *datakeeperPB.Data, reader *bufio.Reader) error {
 		fmt.Println(string(data.Data[:]))
 	default:
 		for {
-			fmt.Print("Enter path to save Data : ")
+			fmt.Print(enterPathToSaveData)
 			filePath, _ := reader.ReadString('\n')
 			filePath = strings.TrimSpace(filePath)
 
@@ -39,14 +97,16 @@ func readData(data *datakeeperPB.Data, reader *bufio.Reader) error {
 		}
 	}
 
-	fmt.Print("Meta : ")
+	fmt.Print(metaStr)
 	fmt.Println(data.Meta)
 
 	return nil
 }
 
+const enterPathToNewData = "Enter path to new Data (empty string to skip) : "
+
 func getData(reader *bufio.Reader) ([]byte, error) {
-	fmt.Println("Enter path to new Data (empty string to skip) : ")
+	fmt.Println(enterPathToNewData)
 	filePath, _ := reader.ReadString('\n')
 	filePath = strings.TrimSpace(filePath)
 
@@ -60,8 +120,10 @@ func getData(reader *bufio.Reader) ([]byte, error) {
 	return data, err
 }
 
+const enterPathToNewMeta = "Enter path to new Meta (empty string to skip) : "
+
 func getMeta(reader *bufio.Reader) (map[string]string, error) {
-	fmt.Println("Enter path to new Meta (empty string to skip) : ")
+	fmt.Println(enterPathToNewMeta)
 	filePath, _ := reader.ReadString('\n')
 	filePath = strings.TrimSpace(filePath)
 
@@ -138,27 +200,27 @@ func (s *Impl) SignIn(ctx context.Context, req *SignIn) error {
 
 func (s *Impl) new() {
 	for {
-		fmt.Println("Exit - q")
-		fmt.Print("Enter DataType (LOG_PASS - lp, TEXT - t, BANK_CARD - bc, OTHER - o) : ")
+		fmt.Println(exitStr)
+		fmt.Print(enterDataTypeStr)
 		dataType, _ := s.reader.ReadString('\n')
 		dataType = strings.TrimSpace(dataType)
-		if dataType == "q" {
+		if dataType == quitallComm {
 			return
 		}
 
 		req := &datakeeperPB.NewRequest{}
 
 		switch dataType {
-		case "lp":
+		case logPassComm:
 			req.DataType = datakeeperPB.DataType_LOG_PASS
-		case "t":
+		case textComm:
 			req.DataType = datakeeperPB.DataType_TEXT
-		case "bc":
+		case bankCardComm:
 			req.DataType = datakeeperPB.DataType_BANK_CARD
-		case "o":
+		case otherComm:
 			req.DataType = datakeeperPB.DataType_OTHER
 		default:
-			fmt.Println("Unknown DataType. Try again.")
+			fmt.Println(unknownDataTypeStr, tryAgainStr)
 			continue
 		}
 
@@ -167,35 +229,35 @@ func (s *Impl) new() {
 		req.Data, err = getData(s.reader)
 		if err != nil {
 			fmt.Println(err.Error())
-			fmt.Println("Try again")
+			fmt.Println(tryAgainStr)
 			continue
 		}
 
 		req.Meta, err = getMeta(s.reader)
 		if err != nil {
 			fmt.Println(err.Error())
-			fmt.Println("Try again")
+			fmt.Println(tryAgainStr)
 			continue
 		}
 
 		resp, err := s.dataKeeperClient.New(s.ctx, req)
 		if err != nil {
 			fmt.Println(err.Error())
-			fmt.Println("Try again")
+			fmt.Println(tryAgainStr)
 			continue
 		}
 
-		fmt.Println("Success, New Id", resp.Id)
+		fmt.Println(successStr, newIdStr, resp.Id)
 	}
 }
 
 func (s *Impl) get() {
 	for {
-		fmt.Println("Exit - q")
-		fmt.Print("Enter item Id : ")
+		fmt.Println(exitStr)
+		fmt.Print(enterItemIdStr)
 		id, _ := s.reader.ReadString('\n')
 		id = strings.TrimSpace(id)
-		if id == "q" {
+		if id == quitallComm {
 			return
 		}
 
@@ -204,14 +266,14 @@ func (s *Impl) get() {
 		})
 		if err != nil {
 			fmt.Println(err.Error())
-			fmt.Println("Try again")
+			fmt.Println(tryAgainStr)
 			continue
 		}
 
 		err = readData(resp.Data, s.reader)
 		if err != nil {
 			fmt.Println(err.Error())
-			fmt.Println("Try again")
+			fmt.Println(tryAgainStr)
 			continue
 		}
 	}
@@ -219,11 +281,11 @@ func (s *Impl) get() {
 
 func (s *Impl) set() {
 	for {
-		fmt.Println("Exit - q")
-		fmt.Print("Enter item Id : ")
+		fmt.Println(exitStr)
+		fmt.Print(enterItemIdStr)
 		id, _ := s.reader.ReadString('\n')
 		id = strings.TrimSpace(id)
-		if id == "q" {
+		if id == quitallComm {
 			return
 		}
 
@@ -232,7 +294,7 @@ func (s *Impl) set() {
 		})
 		if err != nil {
 			fmt.Println(err.Error())
-			fmt.Println("Try again")
+			fmt.Println(tryAgainStr)
 			continue
 		}
 
@@ -245,25 +307,25 @@ func (s *Impl) set() {
 		newData.Data, err = getData(s.reader)
 		if err != nil {
 			fmt.Println(err.Error())
-			fmt.Println("Try again")
+			fmt.Println(tryAgainStr)
 			continue
 		}
 
 		newData.Meta, err = getMeta(s.reader)
 		if err != nil {
 			fmt.Println(err.Error())
-			fmt.Println("Try again")
+			fmt.Println(tryAgainStr)
 			continue
 		}
 
 		_, err = s.dataKeeperClient.Set(s.ctx, newData)
 		if err != nil {
 			fmt.Println(err.Error())
-			fmt.Println("Try again")
+			fmt.Println(tryAgainStr)
 			continue
 		}
 
-		fmt.Println("success")
+		fmt.Println(successStr)
 	}
 }
 
@@ -278,7 +340,7 @@ func (s *Impl) list() {
 		})
 		if err != nil {
 			fmt.Println(err.Error())
-			fmt.Println("Try again")
+			fmt.Println(tryAgainStr)
 			continue
 		}
 
@@ -290,16 +352,16 @@ func (s *Impl) list() {
 		}
 
 		if len(resp.DataArray) == 0 {
-			fmt.Println("End")
+			fmt.Println(endStr)
 			return
 		}
 
-		fmt.Println("Exit - q")
-		fmt.Println("Next - any other symbol")
+		fmt.Println(exitStr)
+		fmt.Println(nextAnyOtherStr)
 		command, _ := s.reader.ReadString('\n')
 		command = strings.TrimSpace(command)
 
-		if command == "q" {
+		if command == quitallComm {
 			return
 		}
 
@@ -309,11 +371,11 @@ func (s *Impl) list() {
 
 func (s *Impl) delete() {
 	for {
-		fmt.Println("Exit - q")
-		fmt.Print("Enter item Id : ")
+		fmt.Println(exitStr)
+		fmt.Print(enterItemIdStr)
 		id, _ := s.reader.ReadString('\n')
 		id = strings.TrimSpace(id)
-		if id == "q" {
+		if id == quitallComm {
 			return
 		}
 
@@ -322,11 +384,11 @@ func (s *Impl) delete() {
 		})
 		if err != nil {
 			fmt.Println(err.Error())
-			fmt.Println("Try again")
+			fmt.Println(tryAgainStr)
 			continue
 		}
 
-		fmt.Println("Item deleted")
+		fmt.Println(itemDeletedStr)
 		return
 	}
 }
@@ -343,32 +405,31 @@ func (s *Impl) Start(reader *bufio.Reader, ctx context.Context) {
 	fmt.Println()
 
 	for {
-		fmt.Print("Next command.\n\tExit - q\n\tNew - n\n\tGet - g\n\tSet - s\n\tList - l\n\tDelete - d\n: ")
+		fmt.Print(nextCommandStr)
 		command, _ := s.reader.ReadString('\n')
 		command = strings.TrimSpace(command)
 
 		switch command {
-		case "q":
+		case quitallComm:
 			return
-		case "n":
+		case newComm:
 			s.new()
-		case "g":
+		case getComm:
 			s.get()
-		case "s":
+		case setComm:
 			s.set()
-		case "d":
+		case deleteComm:
 			s.delete()
-		case "l":
+		case listComm:
 			s.list()
 		default:
-			fmt.Println("Unknown command. Try again.")
+			fmt.Println(unknownCommandStr, tryAgainStr)
 		}
 	}
 }
 
 var _ Interface = (*Impl)(nil)
 
-// "localhost:5678"
 func Init(userServiceAddr, serviceAddr string) (Interface, error) {
 	userConn, err := grpc.Dial(userServiceAddr, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
