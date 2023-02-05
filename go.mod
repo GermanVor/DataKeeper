@@ -10,6 +10,7 @@ require (
 	github.com/jackc/pgtype v1.12.0
 	github.com/jackc/pgx v3.6.2+incompatible
 	github.com/jackc/pgx/v4 v4.17.2
+	github.com/joho/godotenv v1.5.0
 	github.com/sirupsen/logrus v1.4.2
 	github.com/stretchr/testify v1.8.1
 	golang.org/x/crypto v0.0.0-20220722155217-630584e8d5aa

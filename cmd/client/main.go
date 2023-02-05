@@ -11,6 +11,7 @@ import (
 	"strings"
 
 	"github.com/GermanVor/data-keeper/internal/common"
+	"github.com/joho/godotenv"
 	"golang.org/x/crypto/ssh/terminal"
 
 	"github.com/GermanVor/data-keeper/cmd/client/rpc"
@@ -24,6 +25,20 @@ var (
 )
 
 func init() {
+	godotenv.Load(".env")
+
+	if envAddr, ok := os.LookupEnv("ADDR"); ok {
+		addr = envAddr
+	}
+
+	if envUserAddr, ok := os.LookupEnv("USER_SERVICE_ADDR"); ok {
+		userAddr = envUserAddr
+	}
+
+	if envSecretValuePath, ok := os.LookupEnv("SECRET_PATH"); ok {
+		secretValuePath = envSecretValuePath
+	}
+
 	flag.StringVar(&addr, "a", addr, "address of the service")
 	flag.StringVar(&userAddr, "ua", userAddr, "address of the user service")
 	flag.StringVar(&secretValuePath, "s", secretValuePath, "path to the file with secret")
