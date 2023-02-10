@@ -12,6 +12,7 @@
 
 `.env|console flag`
 
+`--p` - Путь до `.env` файла. По умолчанию `.env`
 `ADDR|--a` - Адрес сервера. По умолчанию `:1234`
 `DATA_BASE_DSN|--d` - Адрес базы данных. По умолчанию `postgres://zzman:@localhost:5432/postgres`
 
@@ -23,11 +24,22 @@
 
 `.env|console flag`
 
+`--p` - Путь до `.env` файла. По умолчанию `.env`
 `ADDR|--a` - Адрес сервера. По умолчанию `:5678`
 `USER_SERVICE_ADDR|--ua` - Адрес `User` сервера. По умолчанию `:1234`
 `DATA_BASE_DSN|d` - Адрес базы данных. По умолчанию `postgres://zzman:@localhost:5432/postgres`
 
 Команда для запуска `go run ./cmd/storageServer/main`
+
+## Запуск `Client` приложения
+
+# Config
+
+`.env|console flag`
+`--p` - Путь до `.env` файла. По умолчанию `.env`
+`ADDR|--a` - Адрес `Storage` сервера. По умолчанию `:5678`
+`USER_SERVICE_ADDR|--ua` - Адрес `User` сервера. По умолчанию `:1234`
+`SECRET_PATH|--s` - Путь до файла с серкретом.
 
 ## Сценарий работы
 
