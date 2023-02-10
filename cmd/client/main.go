@@ -11,7 +11,6 @@ import (
 	"strings"
 
 	"github.com/GermanVor/data-keeper/internal/common"
-	"github.com/joho/godotenv"
 	"golang.org/x/crypto/ssh/terminal"
 
 	"github.com/GermanVor/data-keeper/cmd/client/rpc"
@@ -22,10 +21,11 @@ var (
 	userAddr        = common.DEFAULT_USER_SERVICE_ADDR
 	secretValue     = common.DEFAULT_USER_SECRET
 	secretValuePath = ""
+	envFilePath     = common.DEFAULT_ENV_PATH
 )
 
-func init() {
-	godotenv.Load(".env")
+func initConfig() {
+	common.LoadEnvFile(&envFilePath, envFilePath)
 
 	if envAddr, ok := os.LookupEnv("ADDR"); ok {
 		addr = envAddr
@@ -42,6 +42,7 @@ func init() {
 	flag.StringVar(&addr, "a", addr, "address of the service")
 	flag.StringVar(&userAddr, "ua", userAddr, "address of the user service")
 	flag.StringVar(&secretValuePath, "s", secretValuePath, "path to the file with secret")
+	flag.Parse()
 }
 
 var (
@@ -50,7 +51,7 @@ var (
 )
 
 func main() {
-	flag.Parse()
+	initConfig()
 
 	client, err := rpc.Init(userAddr, addr)
 	if err != nil {

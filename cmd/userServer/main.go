@@ -8,16 +8,16 @@ import (
 	"github.com/GermanVor/data-keeper/cmd/userServer/service"
 	"github.com/GermanVor/data-keeper/cmd/userServer/storage"
 	"github.com/GermanVor/data-keeper/internal/common"
-	"github.com/joho/godotenv"
 )
 
 var (
 	addr        = common.DEFAULT_USER_SERVICE_ADDR
 	dataBaseDSN = common.DEFAULT_DATA_BASE_DSN
+	envFilePath = common.DEFAULT_ENV_PATH
 )
 
 func init() {
-	godotenv.Load(".env")
+	common.LoadEnvFile(&envFilePath, envFilePath)
 
 	if envAddr, ok := os.LookupEnv("ADDR"); ok {
 		addr = envAddr
