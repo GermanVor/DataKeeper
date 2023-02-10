@@ -74,51 +74,56 @@ func main() {
 		fmt.Println("Unknown command", ans, "Try again")
 	}
 
-	fmt.Print("Enter login: ")
-	login, _ := reader.ReadString('\n')
-	login = strings.TrimSpace(login)
-
-	fmt.Print("Enter password: ")
-	bytePassword, err := terminal.ReadPassword(0)
-	if err != nil {
-		fmt.Println(err.Error())
-		return
-	}
-
-	password := strings.TrimSpace(string(bytePassword))
-
 	ctx := context.Background()
-	if ans == signInComm {
-		fmt.Print("\nEnter email: ")
-		email, _ := reader.ReadString('\n')
 
-		if secretValuePath != "" {
-			if secretFromFile, err := ioutil.ReadFile(secretValuePath); err == nil {
-				secretValue = string(secretFromFile[:])
-			} else {
-				log.Println(err.Error())
-				return
-			}
+	for {
+		fmt.Print("Enter login: ")
+		login, _ := reader.ReadString('\n')
+		login = strings.TrimSpace(login)
+
+		fmt.Print("Enter password: ")
+		bytePassword, err := terminal.ReadPassword(0)
+		if err != nil {
+			fmt.Println(err.Error())
+			return
 		}
 
-		fmt.Println(login, password, email)
+		password := strings.TrimSpace(string(bytePassword))
 
-		err = client.SignIn(ctx, &rpc.SignIn{
-			Login:    login,
-			Password: password,
-			Email:    email,
-			Secret:   secretValue,
-		})
-	} else {
-		err = client.LogIn(ctx, &rpc.LogIn{
-			Login:    login,
-			Password: password,
-		})
-	}
+		if ans == signInComm {
+			fmt.Print("\nEnter email: ")
+			email, _ := reader.ReadString('\n')
 
-	if err != nil {
-		fmt.Println(err.Error())
-		return
+			if secretValuePath != "" {
+				if secretFromFile, err := ioutil.ReadFile(secretValuePath); err == nil {
+					secretValue = string(secretFromFile[:])
+				} else {
+					log.Println(err.Error())
+					continue
+				}
+			}
+
+			fmt.Println(login, password, email)
+
+			err = client.SignIn(ctx, &rpc.SignIn{
+				Login:    login,
+				Password: password,
+				Email:    email,
+				Secret:   secretValue,
+			})
+		} else {
+			err = client.LogIn(ctx, &rpc.LogIn{
+				Login:    login,
+				Password: password,
+			})
+		}
+
+		if err != nil {
+			fmt.Println(err.Error())
+			continue
+		}
+
+		break
 	}
 
 	client.Start(reader, ctx)
