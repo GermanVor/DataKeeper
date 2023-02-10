@@ -20,6 +20,8 @@ const (
 	DEFAULT_ENV_PATH = ".env"
 )
 
+// LoadEnvFile Загружает переменные из указанного файла.
+// Если путь до файла отличается от дефолтного и выбрасывается ошибка, программа прерывается
 func LoadEnvFile(envFilePath *string, defaultFilePath string) {
 	flag.StringVar(envFilePath, "p", defaultFilePath, "path to the file to download variables")
 	flag.Parse()

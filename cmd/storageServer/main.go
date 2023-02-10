@@ -16,7 +16,7 @@ var (
 	envFilePath = common.DEFAULT_ENV_PATH
 )
 
-func init() {
+func initConfig() {
 	common.LoadEnvFile(&envFilePath, envFilePath)
 
 	if envAddr, ok := os.LookupEnv("ADDR"); ok {
@@ -34,10 +34,11 @@ func init() {
 	flag.StringVar(&addr, "a", addr, "address of the service")
 	flag.StringVar(&userAddr, "ua", userAddr, "address of the user service")
 	flag.StringVar(&dataBaseDSN, "d", dataBaseDSN, "")
+	flag.Parse()
 }
 
 func main() {
-	flag.Parse()
+	initConfig()
 
 	stor := storage.Init(dataBaseDSN)
 	s := service.Init(addr, stor, userAddr)
