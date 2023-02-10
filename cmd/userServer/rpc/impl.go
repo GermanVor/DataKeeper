@@ -15,8 +15,6 @@ type UserRPCImpl struct {
 	stor storage.Interface
 }
 
-// TODO возвращать на ружу свои ошибки
-
 func buildUserToke(userId, secret string) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		common.USER_ID_CTX_NAME: userId,

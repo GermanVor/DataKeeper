@@ -37,11 +37,13 @@ var (
 		");"
 )
 
+// Returns a hash of the login to write to the database
 func getLogin(login string) string {
 	loginHash := sha1.Sum([]byte(login))
 	return hex.EncodeToString(loginHash[:])
 }
 
+// Returns a hash of the salted the password to write to the database
 func getPass(pass string, salt []byte) (string, error) {
 	passHash, err := scrypt.Key([]byte(pass), salt, 1<<14, 8, 1, 64)
 	if err != nil {
@@ -51,6 +53,7 @@ func getPass(pass string, salt []byte) (string, error) {
 	return hex.EncodeToString(passHash), nil
 }
 
+// Returns random salt
 func getSalt() ([]byte, error) {
 	salt := make([]byte, 32)
 	_, err := io.ReadFull(rand.Reader, salt)
