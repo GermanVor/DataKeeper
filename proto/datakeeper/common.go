@@ -1,16 +1,17 @@
 package proto
 
 import (
+	"encoding/json"
 	"errors"
 
-	"github.com/GermanVor/data-keeper/internal/storage"
+	"github.com/GermanVor/data-keeper/cmd/storageServer/storage"
 )
 
 func (d *DataType) Format() storage.DataType {
 	switch *d {
 	case DataType_BANK_CARD:
 		return storage.BankCard
-	case DataType_LOGG_PASS:
+	case DataType_LOG_PASS:
 		return storage.LogPass
 	case DataType_OTHER:
 		return storage.Other
@@ -21,26 +22,36 @@ func (d *DataType) Format() storage.DataType {
 	}
 }
 
-func (r *NewRequest) Format() (*storage.NewData, error) {
+func (r *NewRequest) Format(userId string) (*storage.NewData, error) {
 	dataType := r.DataType.Format()
 
 	if dataType == storage.Unknown {
 		return nil, errors.New("")
 	}
 
+	b, err := json.Marshal(r.Meta)
+	if err != nil {
+		return nil, errors.New("")
+	}
+
 	return &storage.NewData{
-		UserId:   r.UserId,
+		UserID:   userId,
 		DataType: dataType,
 		Data:     r.Data,
-		Meta:     r.Meta,
+		Meta:     b,
 	}, nil
 }
 
-func (r *SetRequest) Format() *storage.SetData {
+func (r *SetRequest) Format(userId string) (*storage.SetData, error) {
+	b, err := json.Marshal(r.Meta)
+	if err != nil {
+		return nil, err
+	}
+
 	return &storage.SetData{
-		UserId: r.UserId,
+		UserID: userId,
 		Id:     r.Id,
 		Data:   r.Data,
-		Meta:   r.Meta,
-	}
+		Meta:   b,
+	}, nil
 }

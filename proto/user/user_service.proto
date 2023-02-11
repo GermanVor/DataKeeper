@@ -17,8 +17,6 @@ service User {
 message LogInRequest {
     string login = 1;
     string password = 2;
-    string email = 3;
-    string secret = 4;
 }
 
 message LogInResponse {
@@ -29,6 +27,8 @@ message LogInResponse {
 message SignInRequest {
     string login = 1;
     string password = 2;
+    string email = 3;
+    string secret = 4;
 }
 
 message SignInResponse {
@@ -38,7 +38,7 @@ message SignInResponse {
 
 message CreateAccountRequest {
     string token = 1;
-    string accountName = 2;
+    string account_name = 2;
     string password = 3;
 }
 
@@ -52,5 +52,5 @@ message CheckAccessRequest {
 }
 
 message CheckAccessResponse {
-    string userId = 1;
+    string user_id = 1;
 }

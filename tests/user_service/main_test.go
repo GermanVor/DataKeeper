@@ -7,8 +7,9 @@ import (
 	"net"
 	"testing"
 
-	"github.com/GermanVor/data-keeper/internal/user"
-	storage "github.com/GermanVor/data-keeper/internal/userStorage"
+	userRPC "github.com/GermanVor/data-keeper/cmd/userServer/rpc"
+	"github.com/GermanVor/data-keeper/cmd/userServer/storage"
+	"github.com/GermanVor/data-keeper/internal/common"
 	pb "github.com/GermanVor/data-keeper/proto/user"
 	"github.com/bmizerany/assert"
 	"github.com/golang-jwt/jwt"
@@ -18,24 +19,29 @@ import (
 	"google.golang.org/grpc/test/bufconn"
 )
 
-const bufSize = 1024 * 1024
-
-const USER_LOGIN = "USER_LOGIN_QWERTY"
-const USER_ID = "USER_ID_QWERTY"
-const SECRET = "SECRET_YTREWQ"
+const (
+	bufSize    = 1024 * 1024
+	USER_LOGIN = "USER_LOGIN_QWERTY"
+	USER_ID    = "USER_ID_QWERTY"
+	SECRET     = "SECRET_YTREWQ"
+	PASSWORD   = "PASSWORD"
+)
 
 var TOKEN, _ = jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-	"userId": USER_ID,
+	common.USER_ID_CTX_NAME: USER_ID,
 }).SignedString([]byte(SECRET))
 
 type StorageMock struct{}
 
-func (s *StorageMock) LogIn(ctx context.Context, userData *storage.UserData) (string, error) {
-	if userData.Login == USER_LOGIN {
-		return USER_ID, nil
+func (s *StorageMock) LogIn(ctx context.Context, login, password string) (*storage.UserOutput, error) {
+	if login == USER_LOGIN {
+		return &storage.UserOutput{
+			UserID: USER_ID,
+			Secret: SECRET,
+		}, nil
 	}
 
-	return "", errors.New("")
+	return nil, errors.New("")
 }
 
 func (s *StorageMock) GetSecret(ctx context.Context, userId string) (string, error) {
@@ -46,10 +52,10 @@ func (s *StorageMock) GetSecret(ctx context.Context, userId string) (string, err
 	return "", errors.New("")
 }
 
-func (s *StorageMock) SignIn(ctx context.Context, login, password string) (*storage.SignOutput, error) {
-	if login == USER_LOGIN {
-		return &storage.SignOutput{
-			UserId: USER_ID,
+func (s *StorageMock) SignIn(ctx context.Context, userData *storage.UserData) (*storage.UserOutput, error) {
+	if userData.Login == USER_LOGIN && userData.Secret == SECRET {
+		return &storage.UserOutput{
+			UserID: USER_ID,
 			Secret: SECRET,
 		}, nil
 	}
@@ -67,7 +73,7 @@ func init() {
 	lis = bufconn.Listen(bufSize)
 	s := grpc.NewServer()
 
-	pb.RegisterUserServer(s, user.Init(stor))
+	pb.RegisterUserServer(s, userRPC.Init(stor))
 
 	go func() {
 		if err := s.Serve(lis); err != nil {
@@ -92,8 +98,8 @@ func TestBase(t *testing.T) {
 
 	t.Run("LogIn", func(t *testing.T) {
 		resp, err := client.LogIn(ctx, &pb.LogInRequest{
-			Login:  USER_LOGIN,
-			Secret: SECRET,
+			Login:    USER_LOGIN,
+			Password: PASSWORD,
 		})
 
 		require.NoError(t, err)
@@ -103,7 +109,9 @@ func TestBase(t *testing.T) {
 	t.Run("SignIn", func(t *testing.T) {
 		resp, err := client.SignIn(ctx, &pb.SignInRequest{
 			Login:    USER_LOGIN,
-			Password: "",
+			Password: PASSWORD,
+			Email:    "",
+			Secret:   SECRET,
 		})
 
 		require.NoError(t, err)
@@ -132,8 +140,8 @@ func TestNegative(t *testing.T) {
 
 	t.Run("Negative LogIn", func(t *testing.T) {
 		resp, _ := client.LogIn(ctx, &pb.LogInRequest{
-			Login:  USER_LOGIN + "qwe",
-			Secret: "",
+			Login:    USER_LOGIN + "qwe",
+			Password: PASSWORD,
 		})
 
 		assert.Equal(t, (*pb.LogInResponse)(nil), resp)
@@ -141,8 +149,8 @@ func TestNegative(t *testing.T) {
 
 	t.Run("Negative SignIn", func(t *testing.T) {
 		resp, _ := client.SignIn(ctx, &pb.SignInRequest{
-			Login:    USER_LOGIN + "qwe",
-			Password: "",
+			Login:    USER_LOGIN,
+			Password: PASSWORD + "qwe",
 		})
 
 		assert.Equal(t, (*pb.SignInResponse)(nil), resp)
