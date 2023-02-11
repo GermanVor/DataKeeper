@@ -8,7 +8,7 @@
 
 ## Запуск `User` приложения
 
-# Config
+### Config
 
 `.env|console flag`
 
@@ -20,7 +20,7 @@
 
 ## Запуск `Storage` приложения
 
-# Config
+### Config
 
 `.env|console flag`
 
@@ -33,7 +33,7 @@
 
 ## Запуск `Client` приложения
 
-# Config
+### Config
 
 `.env|console flag`
 `--p` - Путь до `.env` файла. По умолчанию `.env`
