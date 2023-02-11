@@ -31,24 +31,22 @@ type NewData struct {
 }
 
 type GetData struct {
-	UserID string
-	Id     string
+	UserID string // ID of the user
+	Id     string // Id of the Data
 }
 
 type SetData struct {
-	UserID string
-	Id     string
+	UserID string // ID of the user
 	Data   []byte // new serialized data
 	Meta   []byte // new meta information
 }
 
 type DeleteData struct {
-	UserID string
-	Id     string
+	Id string // Id of the Data
 }
 
 type GetBatch struct {
-	UserID string
+	UserID string // ID of the user
 	Offset int32
 	Limit  int32
 }
