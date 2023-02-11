@@ -103,9 +103,9 @@ func (s *Impl) GetBatch(ctx context.Context, getBatch *GetBatch) ([]*Data, error
 	return resp, nil
 }
 
-var _ Interface = (*Impl)(nil)
+var _ Storager = (*Impl)(nil)
 
-func Init(databaseURI string) Interface {
+func Init(databaseURI string) Storager {
 	conn, err := pgxpool.Connect(context.TODO(), databaseURI)
 	if err != nil {
 		log.Fatalln(err.Error())

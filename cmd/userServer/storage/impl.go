@@ -107,7 +107,7 @@ func (s *Impl) GetSecret(ctx context.Context, userID string) (string, error) {
 	return secret, nil
 }
 
-var _ Interface = (*Impl)(nil)
+var _ Storager = (*Impl)(nil)
 
 func createDefaultUser(conn *pgxpool.Pool) {
 	_, err := conn.Exec(context.TODO(), "INSERT INTO users (secret) VALUES ('"+common.DEFAULT_USER_SECRET+"')")
@@ -116,7 +116,7 @@ func createDefaultUser(conn *pgxpool.Pool) {
 	}
 }
 
-func Init(databaseURI string) Interface {
+func Init(databaseURI string) Storager {
 	conn, err := pgxpool.Connect(context.TODO(), databaseURI)
 	if err != nil {
 		log.Fatalln(err.Error())

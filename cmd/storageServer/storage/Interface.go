@@ -53,7 +53,7 @@ type GetBatch struct {
 	Limit  int32
 }
 
-type Interface interface {
+type Storager interface {
 	// Creates a new entry. Returns its `ID`
 	New(ctx context.Context, newData *NewData) (string, error)
 

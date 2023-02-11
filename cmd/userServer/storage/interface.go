@@ -16,7 +16,7 @@ type UserOutput struct {
 	Secret string
 }
 
-type Interface interface {
+type Storager interface {
 	SignIn(ctx context.Context, userData *UserData) (*UserOutput, error)
 	LogIn(ctx context.Context, login, password string) (*UserOutput, error)
 	GetSecret(ctx context.Context, userID string) (string, error)
